@@ -1,0 +1,22 @@
+Package: harper
+Type: Package
+Title: Harmonic Regression and Periodicity Test
+Version: 1.0-2
+Date: 2018-03-18
+Author: Yuanhao Lai and A.I. McLeod
+Maintainer: Yuanhao Lai <ylai72@uwo.ca>
+Depends: R (>= 3.0),
+Description: Implements p-value computations using an approximation to the cumulative distribution function for a variety of tests for periodicity. Fits four parameter harmonic regression using LS, L1 and robust regression and the semiparametric harmonic regression using the single index model with monotonic constraint. An accompanying vignette illustrates the application of these tests and models.
+License: GPL (>= 2)
+Encoding: UTF-8
+LazyData: true
+NeedsCompilation: yes
+Imports: quantreg (>= 5.0),robustbase, MASS, scam, mgcv, scar,Rcpp
+RoxygenNote: 6.1.0
+Suggests: knitr, boot, lattice, rmarkdown, GeneCycle, stabledist,
+        ggplot2, tidyverse
+VignetteBuilder: knitr
+LinkingTo: Rcpp
+URL: https://github.com/CliffordLai/harper
+BugReports: https://github.com/CliffordLai/harper/issues
+Packaged: 2018-03-19 04:57:54 UTC; Yi

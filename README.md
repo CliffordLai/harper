@@ -1,0 +1,39 @@
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+harper
+======
+
+The goal of harper is to implement p-value computations using an approximation to the cumulative distribution function for a variety of tests for periodicity. It also fits four parameter harmonic regression using LS, L1 and robust regression and the semiparametric harmonic regression using the single index model with monotonic constraint. An accompanying vignette illustrates the application of these tests and models .
+
+Installation
+------------
+
+To install this package, run
+
+``` r
+if (!require("devtools")) install.packages("devtools")
+devtools::install_github("CliffordLai/harper")
+```
+
+Example
+-------
+
+This is a basic example which shows you how to estimate the frequency of series.
+
+``` r
+library(harper)
+# Simulate the four parameter harmonic regression model with standard Gaussian error terms
+set.seed(193)
+lambdaR <- seq(0.1,0.45,length.out=50)
+z <- shreg(15, f=2.5/15, hpar=list(snr=2,zeta=2*pi*0.3), model="Gaussian")
+ptestReg(z,method = "LS")$freq #Least-squares estimation
+#> [1] 0.1538462
+```
+
+Vignettes
+---------
+
+The vignettes include three applications. List vignettes in an HTML browser by,
+
+``` r
+browseVignettes(package = "harper")
+```

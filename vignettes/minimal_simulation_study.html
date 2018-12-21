@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta name="author" content="Yuanhao" />
+
+<meta name="date" content="2018-12-21" />
+
+<title>Minimal Simulation Study of the Rank-based Frequency Estimator</title>
+
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(data-line-number);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#header {
+text-align: center;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Minimal Simulation Study of the Rank-based Frequency Estimator</h1>
+<h4 class="author"><em>Yuanhao</em></h4>
+<h4 class="date"><em>2018-12-21</em></h4>
+
+
+
+<p>This vignette introduces the functionality of the <code>harper</code> package for estimating the frequency in the semiparametric harmonic regression model. As an example, a simulation study is done to compare the mean square errors of the rank-based estimator and the least square estimator for the frequency.</p>
+<div id="semiparametric-harmonic-regression-model" class="section level2">
+<h2>Semiparametric Harmonic Regression Model</h2>
+<p>The proposed semiparametric harmonic regression model for a periodic series has the following form, <span class="math display">\[y_t = g( A \cos(2\pi\lambda t)+B \sin(2\pi\lambda t) )+\sigma e_t,\ t=1,...,n,\]</span> where <span class="math inline">\(e_{t}\)</span> is an i.i.d. noise sequence with standard error 1, <span class="math inline">\(g(\cdot)\)</span> is an unknown strictly monotone function in the range <span class="math inline">\([0,1]\)</span>, <span class="math inline">\(A^2 + B^2 =1\)</span>, <span class="math inline">\(0&lt;f&lt;0.5\)</span> and <span class="math inline">\(\sigma&gt;0\)</span>.</p>
+<p>Equivalently, it can be written as, <span class="math display">\[y_t = g( \cos(2\pi\lambda t + \phi))+\sigma e_t,\ t=1,...,n,\]</span> where <span class="math inline">\(A=\cos(2\pi\phi)\)</span>, <span class="math inline">\(B=-\sin(2\pi\phi)\)</span> and <span class="math inline">\(\phi\in [0,2\pi]\)</span>. In the following example, we mainly use the second form to simulate periodic series.</p>
+</div>
+<div id="estimation-of-the-mean-square-errors-of-estimators" class="section level2">
+<h2>Estimation of the Mean Square Errors of Estimators</h2>
+<p>It may be of interest to investigate how the rank-based estimator performs compared to the leat square estimator in the simplest case where <span class="math inline">\(g(x)=x\)</span>.</p>
+<p>Below we define a function to generate sample mean square errors of the least square estimator and the rank-based estimator. In addtion, an estimate of the standard error of the sample mean square error is also computed. This function works as described below.</p>
+<p>Given the inputs frequency, signal-to-noise ratio(SNR) and the distribution of errors, it first simulates 100 observed series of length 12 as required, and then both estimators are computed and hence the sample mean square errors of them can be obtained. Here <span class="math inline">\(g(x)=x\)</span>, <span class="math inline">\(\phi \sim Unif(0,2\pi)\)</span>, and the signal-to-noise ratio is equal to <span class="math inline">\(1/\sigma^2\)</span>.</p>
+<p>Errors from the normal distribution and the stable distribution with stability parameter 1.5 are investigated. In particular, if the error distribution is the stable distribution, then the variance of the error term is undefined but we set the scale parmeter of the stable distribution as 1.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw">library</span>(stabledist)</a>
+<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="kw">library</span>(harper)</a>
+<a class="sourceLine" id="cb1-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb1-4" data-line-number="4">simMSE &lt;-<span class="st"> </span><span class="cf">function</span>(freq,SNR,dist){</a>
+<a class="sourceLine" id="cb1-5" data-line-number="5">  <span class="co">################################</span></a>
+<a class="sourceLine" id="cb1-6" data-line-number="6">  <span class="co">### Simulate required series </span><span class="al">###</span></a>
+<a class="sourceLine" id="cb1-7" data-line-number="7">  <span class="co">################################</span></a>
+<a class="sourceLine" id="cb1-8" data-line-number="8">  n &lt;-<span class="st"> </span><span class="dv">12</span>     <span class="co">#series length</span></a>
+<a class="sourceLine" id="cb1-9" data-line-number="9">  M &lt;-<span class="st"> </span><span class="dv">100</span>    <span class="co">#number of simulations</span></a>
+<a class="sourceLine" id="cb1-10" data-line-number="10">  t &lt;-<span class="st"> </span><span class="dv">1</span><span class="op">:</span>n</a>
+<a class="sourceLine" id="cb1-11" data-line-number="11">  g &lt;-<span class="st"> </span><span class="cf">function</span>(x){x} <span class="co">#identify g function</span></a>
+<a class="sourceLine" id="cb1-12" data-line-number="12">  phi &lt;-<span class="st"> </span><span class="kw">runif</span>(<span class="dv">1</span>, <span class="dt">min=</span><span class="dv">0</span>, <span class="dt">max=</span><span class="dv">2</span><span class="op">*</span>pi)</a>
+<a class="sourceLine" id="cb1-13" data-line-number="13">  u &lt;-<span class="st"> </span><span class="kw">cos</span>(<span class="dv">2</span><span class="op">*</span>pi<span class="op">*</span>freq<span class="op">*</span>t<span class="op">+</span>phi)   <span class="co"># Underlying true series</span></a>
+<a class="sourceLine" id="cb1-14" data-line-number="14">  </a>
+<a class="sourceLine" id="cb1-15" data-line-number="15">  <span class="co"># Simulate error term</span></a>
+<a class="sourceLine" id="cb1-16" data-line-number="16">  <span class="cf">if</span>(dist<span class="op">==</span><span class="st">&quot;NID&quot;</span>){</a>
+<a class="sourceLine" id="cb1-17" data-line-number="17">    e &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="kw">rnorm</span>(n<span class="op">*</span>M,<span class="dt">sd =</span> <span class="dv">1</span>),<span class="dt">ncol =</span> M)<span class="op">/</span><span class="kw">sqrt</span>(SNR)</a>
+<a class="sourceLine" id="cb1-18" data-line-number="18">  }<span class="cf">else</span> <span class="cf">if</span>(dist<span class="op">==</span><span class="st">&quot;Stable&quot;</span>){</a>
+<a class="sourceLine" id="cb1-19" data-line-number="19">    e &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="kw">rstable</span>(<span class="dt">n =</span> n<span class="op">*</span>M, <span class="dt">alpha =</span> <span class="fl">1.5</span>, <span class="dt">beta =</span> <span class="dv">0</span>),<span class="dt">ncol=</span>M)<span class="op">/</span><span class="kw">sqrt</span>(SNR)</a>
+<a class="sourceLine" id="cb1-20" data-line-number="20">  }</a>
+<a class="sourceLine" id="cb1-21" data-line-number="21">  y &lt;-<span class="st"> </span><span class="kw">g</span>(u)<span class="op">+</span>e   <span class="co"># Observed series</span></a>
+<a class="sourceLine" id="cb1-22" data-line-number="22"></a>
+<a class="sourceLine" id="cb1-23" data-line-number="23">  <span class="co">######################################</span></a>
+<a class="sourceLine" id="cb1-24" data-line-number="24">  <span class="co">### Generate estimated frequencies </span><span class="al">###</span></a>
+<a class="sourceLine" id="cb1-25" data-line-number="25">  <span class="co">######################################</span></a>
+<a class="sourceLine" id="cb1-26" data-line-number="26">  <span class="co"># LS estimate for frequency</span></a>
+<a class="sourceLine" id="cb1-27" data-line-number="27">  ansLS &lt;-<span class="st"> </span><span class="kw">ptestReg</span>(y,<span class="dt">method =</span> <span class="st">&quot;LS&quot;</span>,<span class="dt">returnPvalue =</span> <span class="ot">FALSE</span>)</a>
+<a class="sourceLine" id="cb1-28" data-line-number="28">  freqLS &lt;-<span class="st"> </span>ansLS<span class="op">$</span>freq</a>
+<a class="sourceLine" id="cb1-29" data-line-number="29"></a>
+<a class="sourceLine" id="cb1-30" data-line-number="30">  <span class="co"># Rank-based estimate for frequency</span></a>
+<a class="sourceLine" id="cb1-31" data-line-number="31">  lambdaRange &lt;-<span class="st"> </span><span class="kw">seq</span>(<span class="dv">1</span><span class="op">/</span>n,<span class="fl">0.5</span><span class="dv">-1</span><span class="op">/</span><span class="dv">5</span><span class="op">/</span>n,<span class="dt">length.out =</span> <span class="dv">5</span><span class="op">*</span>n)</a>
+<a class="sourceLine" id="cb1-32" data-line-number="32">  ansRank &lt;-<span class="st"> </span><span class="kw">GetFitRankLS</span>(y,</a>
+<a class="sourceLine" id="cb1-33" data-line-number="33">                            <span class="dt">t=</span><span class="dv">1</span><span class="op">:</span>n,</a>
+<a class="sourceLine" id="cb1-34" data-line-number="34">                            lambdaRange,</a>
+<a class="sourceLine" id="cb1-35" data-line-number="35">                            <span class="dt">phiRange =</span> <span class="kw">seq</span>(<span class="dv">0</span>,<span class="fl">0.99</span>,<span class="dt">by =</span> <span class="fl">0.01</span>),</a>
+<a class="sourceLine" id="cb1-36" data-line-number="36">                            <span class="dt">Exact=</span><span class="ot">FALSE</span>)</a>
+<a class="sourceLine" id="cb1-37" data-line-number="37">  freqRank &lt;-<span class="st"> </span>ansRank[<span class="dv">2</span>,]</a>
+<a class="sourceLine" id="cb1-38" data-line-number="38">  </a>
+<a class="sourceLine" id="cb1-39" data-line-number="39">  <span class="co">#######################</span></a>
+<a class="sourceLine" id="cb1-40" data-line-number="40">  <span class="co">### Compute the MSE </span><span class="al">###</span></a>
+<a class="sourceLine" id="cb1-41" data-line-number="41">  <span class="co">#######################</span></a>
+<a class="sourceLine" id="cb1-42" data-line-number="42">  MSELS &lt;-<span class="st"> </span><span class="kw">mean</span>((freqLS<span class="op">-</span>freq)<span class="op">^</span><span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb1-43" data-line-number="43">  MSERank &lt;-<span class="st"> </span><span class="kw">mean</span>((freqRank<span class="op">-</span>freq)<span class="op">^</span><span class="dv">2</span>)</a>
+<a class="sourceLine" id="cb1-44" data-line-number="44">  </a>
+<a class="sourceLine" id="cb1-45" data-line-number="45">  sdMSELS &lt;-<span class="st"> </span><span class="kw">sd</span>((freqLS<span class="op">-</span>freq)<span class="op">^</span><span class="dv">2</span>)<span class="op">/</span><span class="kw">sqrt</span>(<span class="dv">100</span>)</a>
+<a class="sourceLine" id="cb1-46" data-line-number="46">  sdMSERank &lt;-<span class="st"> </span><span class="kw">sd</span>((freqRank<span class="op">-</span>freq)<span class="op">^</span><span class="dv">2</span>)<span class="op">/</span><span class="kw">sqrt</span>(<span class="dv">100</span>)</a>
+<a class="sourceLine" id="cb1-47" data-line-number="47">    </a>
+<a class="sourceLine" id="cb1-48" data-line-number="48">  <span class="kw">return</span>(<span class="kw">rbind</span>(<span class="kw">c</span>(MSELS,sdMSELS),</a>
+<a class="sourceLine" id="cb1-49" data-line-number="49">               <span class="kw">c</span>(MSERank,sdMSERank)))</a>
+<a class="sourceLine" id="cb1-50" data-line-number="50">}</a></code></pre></div>
+<p>We now generate the sample mean square errors of estimators from series with <span class="math inline">\(\lambda=0.1,0.2,0.3\)</span>, <span class="math inline">\(SNR=1,2,3\)</span>, and <span class="math inline">\(dist=NID,\ Stable\)</span>.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="kw">set.seed</span>(<span class="dv">193</span>)</a>
+<a class="sourceLine" id="cb2-2" data-line-number="2">dist0 &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;NID&quot;</span>,<span class="st">&quot;Stable&quot;</span>)</a>
+<a class="sourceLine" id="cb2-3" data-line-number="3">SNR0 &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span>)</a>
+<a class="sourceLine" id="cb2-4" data-line-number="4">freq0 &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="fl">0.1</span>,<span class="fl">0.2</span>,<span class="fl">0.3</span>)</a>
+<a class="sourceLine" id="cb2-5" data-line-number="5">ansTab &lt;-<span class="st"> </span><span class="kw">expand.grid</span>(<span class="dt">Method=</span><span class="kw">c</span>(<span class="st">&quot;LS&quot;</span>,<span class="st">&quot;Rank&quot;</span>),<span class="dt">dist=</span>dist0, <span class="dt">SNR=</span>SNR0, <span class="dt">freq=</span>freq0,<span class="dt">stringsAsFactors =</span> <span class="ot">FALSE</span>)</a>
+<a class="sourceLine" id="cb2-6" data-line-number="6">ansTab &lt;-<span class="st"> </span><span class="kw">cbind</span>(ansTab,<span class="dt">MSE=</span><span class="dv">0</span>,<span class="dt">sdMSE=</span><span class="dv">0</span>)</a>
+<a class="sourceLine" id="cb2-7" data-line-number="7"></a>
+<a class="sourceLine" id="cb2-8" data-line-number="8">N &lt;-<span class="st"> </span><span class="kw">nrow</span>(ansTab)</a>
+<a class="sourceLine" id="cb2-9" data-line-number="9">ptm &lt;-<span class="st"> </span><span class="kw">proc.time</span>()</a>
+<a class="sourceLine" id="cb2-10" data-line-number="10"><span class="cf">for</span>(i <span class="cf">in</span> <span class="kw">seq</span>(<span class="dv">1</span>,N<span class="dv">-1</span>,<span class="dv">2</span>)){</a>
+<a class="sourceLine" id="cb2-11" data-line-number="11">  ansTab[i<span class="op">:</span>(i<span class="op">+</span><span class="dv">1</span>),<span class="dv">5</span><span class="op">:</span><span class="dv">6</span>] &lt;-<span class="st"> </span><span class="kw">simMSE</span>(ansTab<span class="op">$</span>freq[i],</a>
+<a class="sourceLine" id="cb2-12" data-line-number="12">                                ansTab<span class="op">$</span>SNR[i],</a>
+<a class="sourceLine" id="cb2-13" data-line-number="13">                                ansTab<span class="op">$</span>dist[i])</a>
+<a class="sourceLine" id="cb2-14" data-line-number="14">}</a>
+<a class="sourceLine" id="cb2-15" data-line-number="15"><span class="kw">proc.time</span>() <span class="op">-</span><span class="st"> </span>ptm</a></code></pre></div>
+<pre><code>##    user  system elapsed 
+##   23.80    0.02   23.92</code></pre>
+</div>
+<div id="visualization" class="section level2">
+<h2>Visualization</h2>
+<p>We use <code>ggplot2</code> to visualize the sample mean square errors of the two estimators under different situations. It is also feasible to show the 95% confidence interval for the mean square errors simultaneously. However, with only 100 simulations for each case here, the estimates are not accurate enough and adding the confidence interval makes the following figure messy.</p>
+<p>In practice, we used the network of high performance computers, SHARCNET, to perform our full investigation of the mean square errors with the simulation number equal to <span class="math inline">\(5\times 10^4\)</span>, which enables us to obtain a highly accurate estimate of the mean square error and its confidence interval, too.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="kw">library</span>(ggplot2)</a>
+<a class="sourceLine" id="cb4-2" data-line-number="2">ansTab<span class="op">$</span>dist &lt;-<span class="st"> </span><span class="kw">ordered</span>(ansTab<span class="op">$</span>dist, <span class="dt">levels=</span><span class="kw">c</span>(<span class="st">&quot;NID&quot;</span>, <span class="st">&quot;Stable&quot;</span>))</a>
+<a class="sourceLine" id="cb4-3" data-line-number="3">ansTab<span class="op">$</span>Method &lt;-<span class="st"> </span><span class="kw">ordered</span>(ansTab<span class="op">$</span>Method, <span class="dt">levels=</span><span class="kw">c</span>(<span class="st">&quot;LS&quot;</span>, <span class="st">&quot;Rank&quot;</span>))</a>
+<a class="sourceLine" id="cb4-4" data-line-number="4"></a>
+<a class="sourceLine" id="cb4-5" data-line-number="5"><span class="kw">ggplot</span>(ansTab, <span class="dt">mapping=</span><span class="kw">aes</span>(<span class="dt">x=</span>SNR, <span class="dt">y=</span>MSE, <span class="dt">colour=</span>Method)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb4-6" data-line-number="6"><span class="st">  </span><span class="kw">geom_point</span>(<span class="dt">size=</span><span class="dv">1</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb4-7" data-line-number="7"><span class="st">  </span><span class="kw">geom_line</span>(<span class="dt">size=</span><span class="dv">1</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb4-8" data-line-number="8"><span class="st">  </span><span class="kw">facet_grid</span>(<span class="op">~</span>dist<span class="op">*</span><span class="kw">factor</span>(freq)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb4-9" data-line-number="9"><span class="co">#  geom_errorbar(aes(SNR, ymin=MSE-1.96*sdMSE, ymax=MSE+1.96*sdMSE), width=.2,size=0.4)+</span></a>
+<a class="sourceLine" id="cb4-10" data-line-number="10"><span class="st">  </span><span class="kw">scale_x_continuous</span>(<span class="dt">breaks=</span><span class="kw">c</span>(<span class="dv">0</span>,<span class="dv">2</span>))</a></code></pre></div>
+<div class="figure">
+<img src="data:image/png;base64,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" alt="MSE Comparison when series length is 12" />
+<p class="caption">MSE Comparison when series length is 12</p>
+</div>
+</div>
+
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

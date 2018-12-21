@@ -1,0 +1,155 @@
+---
+title: "Minimal Simulation Study of the Rank-based Frequency Estimator"
+author: "Yuanhao"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Minimal Simulation Study of the Rank-based Frequency Estimator}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+This vignette introduces the functionality of the `harper` package for 
+estimating the frequency in the semiparametric harmonic regression model.
+As an example, a simulation study is done to compare the mean square errors of 
+the rank-based estimator and the least square estimator for the frequency.
+
+## Semiparametric Harmonic Regression Model
+
+The proposed semiparametric harmonic regression model for a periodic series has the following form,
+$$y_t = g( A \cos(2\pi\lambda t)+B \sin(2\pi\lambda t) )+\sigma e_t,\ t=1,...,n,$$
+where $e_{t}$ is an i.i.d. noise sequence with standard error 1, $g(\cdot)$ is an unknown strictly monotone function in the range $[0,1]$, 
+$A^2 + B^2 =1$, $0<f<0.5$ and $\sigma>0$.
+
+Equivalently, it can be written as,
+$$y_t = g( \cos(2\pi\lambda t + \phi))+\sigma e_t,\ t=1,...,n,$$
+where $A=\cos(2\pi\phi)$, $B=-\sin(2\pi\phi)$ and 
+$\phi\in [0,2\pi]$.
+In the following example, we mainly use the second form to simulate periodic series.
+
+
+## Estimation of the Mean Square Errors of Estimators
+
+It may be of interest to investigate how the rank-based estimator performs compared to
+the leat square estimator in the simplest case where $g(x)=x$.
+
+Below we define a function to generate sample mean square errors of the least square estimator 
+and the rank-based estimator. 
+In addtion, an estimate of the standard error of the sample mean square error is also computed.
+This function works as described below.
+
+Given the inputs frequency, signal-to-noise ratio(SNR) and the distribution of errors,
+it first simulates 100 observed series of length 12 as required, and then 
+both estimators are computed and hence 
+the sample mean square errors of them can be obtained.
+Here $g(x)=x$, $\phi \sim Unif(0,2\pi)$, and 
+the signal-to-noise ratio is equal to $1/\sigma^2$.
+
+Errors from the normal distribution and the stable distribution 
+with stability parameter 1.5 are investigated.
+In particular, if the error distribution is the stable distribution,
+then the variance of the error term is undefined 
+but we set the scale parmeter of the stable distribution as 1.
+
+```{r generatorMSE}
+library(stabledist)
+library(harper)
+
+simMSE <- function(freq,SNR,dist){
+  ################################
+  ### Simulate required series ###
+  ################################
+  n <- 12     #series length
+  M <- 100    #number of simulations
+  t <- 1:n
+  g <- function(x){x} #identify g function
+  phi <- runif(1, min=0, max=2*pi)
+  u <- cos(2*pi*freq*t+phi)   # Underlying true series
+  
+  # Simulate error term
+  if(dist=="NID"){
+    e <- matrix(rnorm(n*M,sd = 1),ncol = M)/sqrt(SNR)
+  }else if(dist=="Stable"){
+    e <- matrix(rstable(n = n*M, alpha = 1.5, beta = 0),ncol=M)/sqrt(SNR)
+  }
+  y <- g(u)+e   # Observed series
+
+  ######################################
+  ### Generate estimated frequencies ###
+  ######################################
+  # LS estimate for frequency
+  ansLS <- ptestReg(y,method = "LS",returnPvalue = FALSE)
+  freqLS <- ansLS$freq
+
+  # Rank-based estimate for frequency
+  lambdaRange <- seq(1/n,0.5-1/5/n,length.out = 5*n)
+  ansRank <- GetFitRankLS(y,
+                            t=1:n,
+                            lambdaRange,
+                            phiRange = seq(0,0.99,by = 0.01),
+                            Exact=FALSE)
+  freqRank <- ansRank[2,]
+  
+  #######################
+  ### Compute the MSE ###
+  #######################
+  MSELS <- mean((freqLS-freq)^2)
+  MSERank <- mean((freqRank-freq)^2)
+  
+  sdMSELS <- sd((freqLS-freq)^2)/sqrt(100)
+  sdMSERank <- sd((freqRank-freq)^2)/sqrt(100)
+    
+  return(rbind(c(MSELS,sdMSELS),
+               c(MSERank,sdMSERank)))
+}
+```
+
+We now generate the sample mean square errors of estimators 
+from series with $\lambda=0.1,0.2,0.3$, $SNR=1,2,3$, and $dist=NID,\ Stable$.
+
+```{r simulationStudy}
+set.seed(193)
+dist0 <- c("NID","Stable")
+SNR0 <- c(1,2,3)
+freq0 <- c(0.1,0.2,0.3)
+ansTab <- expand.grid(Method=c("LS","Rank"),dist=dist0, SNR=SNR0, freq=freq0,stringsAsFactors = FALSE)
+ansTab <- cbind(ansTab,MSE=0,sdMSE=0)
+
+N <- nrow(ansTab)
+ptm <- proc.time()
+for(i in seq(1,N-1,2)){
+  ansTab[i:(i+1),5:6] <- simMSE(ansTab$freq[i],
+                                ansTab$SNR[i],
+                                ansTab$dist[i])
+}
+proc.time() - ptm
+```
+
+
+## Visualization
+
+We use `ggplot2` to visualize the sample mean square errors of the two estimators under different situations.
+It is also feasible to show the 95% confidence interval for the mean square errors simultaneously.
+However, with only 100 simulations for each case here, the estimates are not accurate enough and adding
+the confidence interval makes the following figure messy.
+
+In practice, we used the network of high performance computers, SHARCNET, 
+to perform our full investigation of the mean square errors with 
+the simulation number equal to $5\times 10^4$, which 
+enables us to obtain a highly accurate estimate of 
+the mean square error and its confidence interval, too.
+
+```{r, fig.cap = "MSE Comparison when series length is 12", fig.width=7,fig.height=3}
+library(ggplot2)
+ansTab$dist <- ordered(ansTab$dist, levels=c("NID", "Stable"))
+ansTab$Method <- ordered(ansTab$Method, levels=c("LS", "Rank"))
+
+ggplot(ansTab, mapping=aes(x=SNR, y=MSE, colour=Method)) +
+  geom_point(size=1) +
+  geom_line(size=1) +
+  facet_grid(~dist*factor(freq)) +
+#  geom_errorbar(aes(SNR, ymin=MSE-1.96*sdMSE, ymax=MSE+1.96*sdMSE), width=.2,size=0.4)+
+  scale_x_continuous(breaks=c(0,2))
+
+
+```

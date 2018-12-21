@@ -1,0 +1,24 @@
+useDynLib(harper, .registration = TRUE)
+importFrom('Rcpp', "sourceCpp")
+importFrom('quantreg', "rq.fit.br")
+importFrom('scar', "scair")
+importFrom('mgcv', "s")
+importFrom('parallel', "makeCluster", "clusterExport", "clusterMap", "stopCluster")
+importFrom('robustbase', "lmrob","lmrob.control","lmrob..M..fit","Mpsi")
+importFrom("graphics", "lines", "plot", "points", "layout", "plot.default", "title")
+importFrom("grDevices", "rgb")
+importFrom("stats", "approxfun", "coef", "cor", "fft", "lm", "median",
+             "var","residuals", "rnorm", "rt", "runif","loess", "loess.control", 
+             "nls", "pnorm","predict", "qnorm","acf", "cpgram", "mad", "optim", "qqline",
+             "qqnorm", "rbinom", "resid","ppr","gaussian")
+importFrom("utils", "data")
+S3method(print, hreg)
+S3method(plot, hreg)
+S3method(predict, semihregScam)
+S3method(predict, semihregScair)
+#exportPattern(".")
+export(fitHRegL1, fitHRegLmrob, fitHRegLS, GetFitRankLS,
+            pgramFourier, plot.hreg, print.hreg, hreg, shreg, 
+			ptestReg, ptestg, pFisherg, 
+			predict.semihregScam, predict.semihregScair,
+			semihregScam, semihregScair)

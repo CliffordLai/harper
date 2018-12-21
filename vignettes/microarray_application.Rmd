@@ -1,0 +1,178 @@
+---
+title: "Periodicity of Yeast Gene Expression"
+author: "Yuanhao"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Minimal Simulation Study of the Rank-based Frequency Estimator}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+This vignette compares the rank-based periodicity test with the likelihood ratio test statistic,
+which is derived from the harmonic regression model with Gaussian erros.
+Two yeast genes identified as yc1055w and ymr198w are used.
+The dataset is available in the `harper` package.
+
+```{r gene, fig.show ='hold',fig.cap = "The observed gene expressions", fig.width=7,fig.height=3}
+#----------Read Data----------#
+library(harper)
+data(alpha)
+str(alpha)
+
+y1 <- alpha[row.names(alpha)=="YCL055W",]
+y2 <- alpha[row.names(alpha)=="YMR198W",]
+n <- length(y1)
+t <- 1:n
+
+par(mfrow=c(1,2))
+plot(t,y1,type="p",pch=19,
+     xlab = "time", ylab = "gene expression",
+     main="YCL055W")
+plot(t,y1,type="p",pch=19,
+     xlab = "time", ylab = "gene expression",
+     main="YMR198W")
+par(mfrow=c(1,1))
+```
+
+
+## Empirical Distribution
+For illustrative purpose, we use the empirical distributions of both test statistics
+estimated using only 500 Monte Carlo simualtions.
+
+```{r dist}
+n <- 18
+M <- 500
+lambdaRange <- (ceiling(1001/n):500)/1001
+Z <- matrix(rnorm(n*M),ncol=M)
+#Takes 168s
+set.seed(193)
+system.time({
+  distLS  <- ptestReg(Z,t=t,method = "LS",
+                  lambdalist=lambdaRange,
+                  returnPvalue = FALSE)$obsStat
+})
+
+system.time({
+  distRankLS  <- GetFitRankLS(Z,t=1:n,
+                              lambdaRange,
+                              phiRange = seq(0,0.99,by = 0.01),
+                              InvPI=FALSE,
+                              Exact=TRUE)[1,]
+})
+```
+
+
+## Harmonic Regression 
+
+We firstly estimate the frequency by the least-square methods on the series,
+and then fit the series using the harmonic regression model.
+
+```{r LS}
+#----------Fit the harmonic regression----------#
+## Estimate the frequency (LS)
+lambdaRange <- (ceiling(1001/n):500)/1001
+system.time(
+LSFit1 <- ptestReg(y1,t=t,method = "LS",
+                  lambdalist=lambdaRange,
+                  returnPvalue = FALSE)
+)
+system.time(
+LSFit2 <- ptestReg(y2,t=t,method = "LS",
+                  lambdalist=lambdaRange,
+                  returnPvalue = FALSE)
+)
+LSFit1$freq #gene YCL055W
+LSFit2$freq #gene YMR198W
+
+## Modeling given the estimated frequency
+X1 <- data.frame(y1=y1,
+                x1=cos(2*pi*LSFit1$freq*t),
+                x2=sin(2*pi*LSFit1$freq*t))
+X2 <- data.frame(y2=y2,
+                x1=cos(2*pi*LSFit2$freq*t),
+                x2=sin(2*pi*LSFit2$freq*t))
+fitHar1 <- glm(y1~x1+x2,data=X1,family=gaussian())  
+fitHar2 <- glm(y2~x1+x2,data=X2,family=gaussian()) 
+
+## Fitted values at continuous time
+newt <- seq(t[1],t[length(t)],0.1)
+newX1 <- data.frame(x1=cos(2*pi*LSFit1$freq*newt),
+                   x2=sin(2*pi*LSFit1$freq*newt))
+newX2 <- data.frame(x1=cos(2*pi*LSFit2$freq*newt),
+                   x2=sin(2*pi*LSFit2$freq*newt))
+predHar1 <- predict(fitHar1,newX1,type="response")
+predHar2 <- predict(fitHar2,newX2,type="response")
+
+## P-values of the likelihood ratio test
+pvalueLS1 <- mean(distLS>=LSFit1$obsStat) 
+pvalueLS2 <- mean(distLS>=LSFit2$obsStat) 
+```
+
+The estimated frequencies using the LS method are `r LSFit1$freq` and `r LSFit2$freq`
+for the gene YCL055W and the gene YMR198W, respectively.
+The corresponding p-values are `r pvalueLS1` and `r pvalueLS2`,respectively.
+
+## Semiparametric Harmonic Regression 
+
+To fit the semiparametric harmonic regression model,
+We firstly estimate the frequency by the rank-based methods on the series.
+We then fit the series the semiparametric harmonic regression with monotone generalzied additive model.
+
+```{r Rank}
+#----------Fit the semiparametric harmonic regression----------#
+## Estimate the frequency (Rank-based)
+phiRange <- seq(0,0.99,by=0.01) 
+system.time(paraRankLS1 <- GetFitRankLS(y1,t=t,lambdaRange,phiRange)) 
+system.time(paraRankLS2 <- GetFitRankLS(y2,t=t,lambdaRange,phiRange)) 
+paraRankLS1[2,1]
+paraRankLS2[2,1]
+
+## Modeling given the estimated frequency
+fitSHar1 <- semihregScam(y1, t, lambda0=paraRankLS1[2,1],
+                          family = gaussian(), bs = "mpi") #the Gaussian case
+fitSHar2 <- semihregScam(y2, t, lambda0=paraRankLS2[2,1],
+                          family = gaussian(), bs = "mpi") #the Poisson case
+
+## Fitted values at continuous time
+newt <- seq(t[1],t[length(t)],0.1)
+predSHar1 <- predict(fitSHar1,newt)[,2]
+predSHar2 <- predict(fitSHar2,newt)[,2]
+
+## P-values of the likelihood ratio test
+pvalueRank1 <- mean(distRankLS>=paraRankLS1[1,1])
+pvalueRank2 <- mean(distRankLS>=paraRankLS2[1,1])
+```
+
+The estimated frequencies using the rank-based method are `r paraRankLS1[2,1]` and `r paraRankLS2[2,1]`
+for the gene YCL055W and the gene YMR198W, respectively.
+The corresponding p-values are `r pvalueRank1` and `r pvalueRank2`,respectively.
+
+## Visualize the Fitted Model
+The observed time series are black dots. The fitted harmonic regression is blue plus and the
+semiparametric harmonic regression is red triangle.
+
+```{r geneFit, fig.show ='hold',fig.cap = "The observed and fitted gene expressions", fig.width=7,fig.height=3}
+par(mfrow=c(1,2))
+
+#YCL055W
+plot(t,y1,type="p",pch=19,
+     xlab = "time", ylab = "gene expression",
+     main="YCL055W")
+points(t,fitHar1$fitted.values,col="blue",pch=3)
+lines(newt,predHar1,col="blue")
+points(t,fitSHar1$esty,col="red",pch=6)
+lines(newt,predSHar1,col="red",lty=3)
+
+#YMR198W
+plot(t,y1,type="p",pch=19,
+     xlab = "time", ylab = "gene expression",
+     main="YMR198W")
+points(t,fitHar2$fitted.values,col="blue",pch=3)
+lines(newt,predHar2,col="blue")
+points(t,fitSHar2$esty,col="red",pch=6)
+lines(newt,predSHar2,col="red",lty=3)
+
+par(mfrow=c(1,1))
+```
+

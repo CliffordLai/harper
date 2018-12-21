@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta name="author" content="Yuanhao" />
+
+<meta name="date" content="2018-12-21" />
+
+<title>Periodicity of Yeast Gene Expression</title>
+
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(data-line-number);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#header {
+text-align: center;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Periodicity of Yeast Gene Expression</h1>
+<h4 class="author"><em>Yuanhao</em></h4>
+<h4 class="date"><em>2018-12-21</em></h4>
+
+
+
+<p>This vignette compares the rank-based periodicity test with the likelihood ratio test statistic, which is derived from the harmonic regression model with Gaussian erros. Two yeast genes identified as yc1055w and ymr198w are used. The dataset is available in the <code>harper</code> package.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="co">#----------Read Data----------#</span></a>
+<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="kw">library</span>(harper)</a>
+<a class="sourceLine" id="cb1-3" data-line-number="3"><span class="kw">data</span>(alpha)</a>
+<a class="sourceLine" id="cb1-4" data-line-number="4"><span class="kw">str</span>(alpha)</a></code></pre></div>
+<pre><code>##  num [1:6178, 1:18] -0.15 -0.11 -0.14 -0.02 -0.05 -0.6 -0.28 -0.03 -0.05 -0.31 ...
+##  - attr(*, &quot;dimnames&quot;)=List of 2
+##   ..$ : chr [1:6178] &quot;YAL001C&quot; &quot;YAL002W&quot; &quot;YAL003W&quot; &quot;YAL004W&quot; ...
+##   ..$ : chr [1:18] &quot;alpha0&quot; &quot;alpha7&quot; &quot;alpha14&quot; &quot;alpha21&quot; ...</code></pre>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1">y1 &lt;-<span class="st"> </span>alpha[<span class="kw">row.names</span>(alpha)<span class="op">==</span><span class="st">&quot;YCL055W&quot;</span>,]</a>
+<a class="sourceLine" id="cb3-2" data-line-number="2">y2 &lt;-<span class="st"> </span>alpha[<span class="kw">row.names</span>(alpha)<span class="op">==</span><span class="st">&quot;YMR198W&quot;</span>,]</a>
+<a class="sourceLine" id="cb3-3" data-line-number="3">n &lt;-<span class="st"> </span><span class="kw">length</span>(y1)</a>
+<a class="sourceLine" id="cb3-4" data-line-number="4">t &lt;-<span class="st"> </span><span class="dv">1</span><span class="op">:</span>n</a>
+<a class="sourceLine" id="cb3-5" data-line-number="5"></a>
+<a class="sourceLine" id="cb3-6" data-line-number="6"><span class="kw">par</span>(<span class="dt">mfrow=</span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>))</a>
+<a class="sourceLine" id="cb3-7" data-line-number="7"><span class="kw">plot</span>(t,y1,<span class="dt">type=</span><span class="st">&quot;p&quot;</span>,<span class="dt">pch=</span><span class="dv">19</span>,</a>
+<a class="sourceLine" id="cb3-8" data-line-number="8">     <span class="dt">xlab =</span> <span class="st">&quot;time&quot;</span>, <span class="dt">ylab =</span> <span class="st">&quot;gene expression&quot;</span>,</a>
+<a class="sourceLine" id="cb3-9" data-line-number="9">     <span class="dt">main=</span><span class="st">&quot;YCL055W&quot;</span>)</a>
+<a class="sourceLine" id="cb3-10" data-line-number="10"><span class="kw">plot</span>(t,y1,<span class="dt">type=</span><span class="st">&quot;p&quot;</span>,<span class="dt">pch=</span><span class="dv">19</span>,</a>
+<a class="sourceLine" id="cb3-11" data-line-number="11">     <span class="dt">xlab =</span> <span class="st">&quot;time&quot;</span>, <span class="dt">ylab =</span> <span class="st">&quot;gene expression&quot;</span>,</a>
+<a class="sourceLine" id="cb3-12" data-line-number="12">     <span class="dt">main=</span><span class="st">&quot;YMR198W&quot;</span>)</a>
+<a class="sourceLine" id="cb3-13" data-line-number="13"><span class="kw">par</span>(<span class="dt">mfrow=</span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">1</span>))</a></code></pre></div>
+<div class="figure">
+<img src="data:image/png;base64,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" alt="The observed gene expressions" />
+<p class="caption">The observed gene expressions</p>
+</div>
+<div id="empirical-distribution" class="section level2">
+<h2>Empirical Distribution</h2>
+<p>For illustrative purpose, we use the empirical distributions of both test statistics estimated using only 500 Monte Carlo simualtions.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1">n &lt;-<span class="st"> </span><span class="dv">18</span></a>
+<a class="sourceLine" id="cb4-2" data-line-number="2">M &lt;-<span class="st"> </span><span class="dv">500</span></a>
+<a class="sourceLine" id="cb4-3" data-line-number="3">lambdaRange &lt;-<span class="st"> </span>(<span class="kw">ceiling</span>(<span class="dv">1001</span><span class="op">/</span>n)<span class="op">:</span><span class="dv">500</span>)<span class="op">/</span><span class="dv">1001</span></a>
+<a class="sourceLine" id="cb4-4" data-line-number="4">Z &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="kw">rnorm</span>(n<span class="op">*</span>M),<span class="dt">ncol=</span>M)</a>
+<a class="sourceLine" id="cb4-5" data-line-number="5"><span class="co">#Takes 168s</span></a>
+<a class="sourceLine" id="cb4-6" data-line-number="6"><span class="kw">set.seed</span>(<span class="dv">193</span>)</a>
+<a class="sourceLine" id="cb4-7" data-line-number="7"><span class="kw">system.time</span>({</a>
+<a class="sourceLine" id="cb4-8" data-line-number="8">  distLS  &lt;-<span class="st"> </span><span class="kw">ptestReg</span>(Z,<span class="dt">t=</span>t,<span class="dt">method =</span> <span class="st">&quot;LS&quot;</span>,</a>
+<a class="sourceLine" id="cb4-9" data-line-number="9">                  <span class="dt">lambdalist=</span>lambdaRange,</a>
+<a class="sourceLine" id="cb4-10" data-line-number="10">                  <span class="dt">returnPvalue =</span> <span class="ot">FALSE</span>)<span class="op">$</span>obsStat</a>
+<a class="sourceLine" id="cb4-11" data-line-number="11">})</a></code></pre></div>
+<pre><code>##    user  system elapsed 
+##    0.54    0.02    0.64</code></pre>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="kw">system.time</span>({</a>
+<a class="sourceLine" id="cb6-2" data-line-number="2">  distRankLS  &lt;-<span class="st"> </span><span class="kw">GetFitRankLS</span>(Z,<span class="dt">t=</span><span class="dv">1</span><span class="op">:</span>n,</a>
+<a class="sourceLine" id="cb6-3" data-line-number="3">                              lambdaRange,</a>
+<a class="sourceLine" id="cb6-4" data-line-number="4">                              <span class="dt">phiRange =</span> <span class="kw">seq</span>(<span class="dv">0</span>,<span class="fl">0.99</span>,<span class="dt">by =</span> <span class="fl">0.01</span>),</a>
+<a class="sourceLine" id="cb6-5" data-line-number="5">                              <span class="dt">InvPI=</span><span class="ot">FALSE</span>,</a>
+<a class="sourceLine" id="cb6-6" data-line-number="6">                              <span class="dt">Exact=</span><span class="ot">TRUE</span>)[<span class="dv">1</span>,]</a>
+<a class="sourceLine" id="cb6-7" data-line-number="7">})</a></code></pre></div>
+<pre><code>##    user  system elapsed 
+##   17.22    0.02   17.30</code></pre>
+</div>
+<div id="harmonic-regression" class="section level2">
+<h2>Harmonic Regression</h2>
+<p>We firstly estimate the frequency by the least-square methods on the series, and then fit the series using the harmonic regression model.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1"><span class="co">#----------Fit the harmonic regression----------#</span></a>
+<a class="sourceLine" id="cb8-2" data-line-number="2"><span class="co">## Estimate the frequency (LS)</span></a>
+<a class="sourceLine" id="cb8-3" data-line-number="3">lambdaRange &lt;-<span class="st"> </span>(<span class="kw">ceiling</span>(<span class="dv">1001</span><span class="op">/</span>n)<span class="op">:</span><span class="dv">500</span>)<span class="op">/</span><span class="dv">1001</span></a>
+<a class="sourceLine" id="cb8-4" data-line-number="4"><span class="kw">system.time</span>(</a>
+<a class="sourceLine" id="cb8-5" data-line-number="5">LSFit1 &lt;-<span class="st"> </span><span class="kw">ptestReg</span>(y1,<span class="dt">t=</span>t,<span class="dt">method =</span> <span class="st">&quot;LS&quot;</span>,</a>
+<a class="sourceLine" id="cb8-6" data-line-number="6">                  <span class="dt">lambdalist=</span>lambdaRange,</a>
+<a class="sourceLine" id="cb8-7" data-line-number="7">                  <span class="dt">returnPvalue =</span> <span class="ot">FALSE</span>)</a>
+<a class="sourceLine" id="cb8-8" data-line-number="8">)</a></code></pre></div>
+<pre><code>##    user  system elapsed 
+##    0.06    0.00    0.06</code></pre>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" data-line-number="1"><span class="kw">system.time</span>(</a>
+<a class="sourceLine" id="cb10-2" data-line-number="2">LSFit2 &lt;-<span class="st"> </span><span class="kw">ptestReg</span>(y2,<span class="dt">t=</span>t,<span class="dt">method =</span> <span class="st">&quot;LS&quot;</span>,</a>
+<a class="sourceLine" id="cb10-3" data-line-number="3">                  <span class="dt">lambdalist=</span>lambdaRange,</a>
+<a class="sourceLine" id="cb10-4" data-line-number="4">                  <span class="dt">returnPvalue =</span> <span class="ot">FALSE</span>)</a>
+<a class="sourceLine" id="cb10-5" data-line-number="5">)</a></code></pre></div>
+<pre><code>##    user  system elapsed 
+##    0.03    0.00    0.03</code></pre>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" data-line-number="1">LSFit1<span class="op">$</span>freq <span class="co">#gene YCL055W</span></a></code></pre></div>
+<pre><code>## [1] 0.07792208</code></pre>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" data-line-number="1">LSFit2<span class="op">$</span>freq <span class="co">#gene YMR198W</span></a></code></pre></div>
+<pre><code>## [1] 0.1338661</code></pre>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" data-line-number="1"><span class="co">## Modeling given the estimated frequency</span></a>
+<a class="sourceLine" id="cb16-2" data-line-number="2">X1 &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">y1=</span>y1,</a>
+<a class="sourceLine" id="cb16-3" data-line-number="3">                <span class="dt">x1=</span><span class="kw">cos</span>(<span class="dv">2</span><span class="op">*</span>pi<span class="op">*</span>LSFit1<span class="op">$</span>freq<span class="op">*</span>t),</a>
+<a class="sourceLine" id="cb16-4" data-line-number="4">                <span class="dt">x2=</span><span class="kw">sin</span>(<span class="dv">2</span><span class="op">*</span>pi<span class="op">*</span>LSFit1<span class="op">$</span>freq<span class="op">*</span>t))</a>
+<a class="sourceLine" id="cb16-5" data-line-number="5">X2 &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">y2=</span>y2,</a>
+<a class="sourceLine" id="cb16-6" data-line-number="6">                <span class="dt">x1=</span><span class="kw">cos</span>(<span class="dv">2</span><span class="op">*</span>pi<span class="op">*</span>LSFit2<span class="op">$</span>freq<span class="op">*</span>t),</a>
+<a class="sourceLine" id="cb16-7" data-line-number="7">                <span class="dt">x2=</span><span class="kw">sin</span>(<span class="dv">2</span><span class="op">*</span>pi<span class="op">*</span>LSFit2<span class="op">$</span>freq<span class="op">*</span>t))</a>
+<a class="sourceLine" id="cb16-8" data-line-number="8">fitHar1 &lt;-<span class="st"> </span><span class="kw">glm</span>(y1<span class="op">~</span>x1<span class="op">+</span>x2,<span class="dt">data=</span>X1,<span class="dt">family=</span><span class="kw">gaussian</span>())  </a>
+<a class="sourceLine" id="cb16-9" data-line-number="9">fitHar2 &lt;-<span class="st"> </span><span class="kw">glm</span>(y2<span class="op">~</span>x1<span class="op">+</span>x2,<span class="dt">data=</span>X2,<span class="dt">family=</span><span class="kw">gaussian</span>()) </a>
+<a class="sourceLine" id="cb16-10" data-line-number="10"></a>
+<a class="sourceLine" id="cb16-11" data-line-number="11"><span class="co">## Fitted values at continuous time</span></a>
+<a class="sourceLine" id="cb16-12" data-line-number="12">newt &lt;-<span class="st"> </span><span class="kw">seq</span>(t[<span class="dv">1</span>],t[<span class="kw">length</span>(t)],<span class="fl">0.1</span>)</a>
+<a class="sourceLine" id="cb16-13" data-line-number="13">newX1 &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">x1=</span><span class="kw">cos</span>(<span class="dv">2</span><span class="op">*</span>pi<span class="op">*</span>LSFit1<span class="op">$</span>freq<span class="op">*</span>newt),</a>
+<a class="sourceLine" id="cb16-14" data-line-number="14">                   <span class="dt">x2=</span><span class="kw">sin</span>(<span class="dv">2</span><span class="op">*</span>pi<span class="op">*</span>LSFit1<span class="op">$</span>freq<span class="op">*</span>newt))</a>
+<a class="sourceLine" id="cb16-15" data-line-number="15">newX2 &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">x1=</span><span class="kw">cos</span>(<span class="dv">2</span><span class="op">*</span>pi<span class="op">*</span>LSFit2<span class="op">$</span>freq<span class="op">*</span>newt),</a>
+<a class="sourceLine" id="cb16-16" data-line-number="16">                   <span class="dt">x2=</span><span class="kw">sin</span>(<span class="dv">2</span><span class="op">*</span>pi<span class="op">*</span>LSFit2<span class="op">$</span>freq<span class="op">*</span>newt))</a>
+<a class="sourceLine" id="cb16-17" data-line-number="17">predHar1 &lt;-<span class="st"> </span><span class="kw">predict</span>(fitHar1,newX1,<span class="dt">type=</span><span class="st">&quot;response&quot;</span>)</a>
+<a class="sourceLine" id="cb16-18" data-line-number="18">predHar2 &lt;-<span class="st"> </span><span class="kw">predict</span>(fitHar2,newX2,<span class="dt">type=</span><span class="st">&quot;response&quot;</span>)</a>
+<a class="sourceLine" id="cb16-19" data-line-number="19"></a>
+<a class="sourceLine" id="cb16-20" data-line-number="20"><span class="co">## P-values of the likelihood ratio test</span></a>
+<a class="sourceLine" id="cb16-21" data-line-number="21">pvalueLS1 &lt;-<span class="st"> </span><span class="kw">mean</span>(distLS<span class="op">&gt;=</span>LSFit1<span class="op">$</span>obsStat) </a>
+<a class="sourceLine" id="cb16-22" data-line-number="22">pvalueLS2 &lt;-<span class="st"> </span><span class="kw">mean</span>(distLS<span class="op">&gt;=</span>LSFit2<span class="op">$</span>obsStat) </a></code></pre></div>
+<p>The estimated frequencies using the LS method are 0.0779221 and 0.1338661 for the gene YCL055W and the gene YMR198W, respectively. The corresponding p-values are 0.392 and 0.486,respectively.</p>
+</div>
+<div id="semiparametric-harmonic-regression" class="section level2">
+<h2>Semiparametric Harmonic Regression</h2>
+<p>To fit the semiparametric harmonic regression model, We firstly estimate the frequency by the rank-based methods on the series. We then fit the series the semiparametric harmonic regression with monotone generalzied additive model.</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" data-line-number="1"><span class="co">#----------Fit the semiparametric harmonic regression----------#</span></a>
+<a class="sourceLine" id="cb17-2" data-line-number="2"><span class="co">## Estimate the frequency (Rank-based)</span></a>
+<a class="sourceLine" id="cb17-3" data-line-number="3">phiRange &lt;-<span class="st"> </span><span class="kw">seq</span>(<span class="dv">0</span>,<span class="fl">0.99</span>,<span class="dt">by=</span><span class="fl">0.01</span>) </a>
+<a class="sourceLine" id="cb17-4" data-line-number="4"><span class="kw">system.time</span>(paraRankLS1 &lt;-<span class="st"> </span><span class="kw">GetFitRankLS</span>(y1,<span class="dt">t=</span>t,lambdaRange,phiRange)) </a></code></pre></div>
+<pre><code>##    user  system elapsed 
+##    0.48    0.00    0.49</code></pre>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb19-1" data-line-number="1"><span class="kw">system.time</span>(paraRankLS2 &lt;-<span class="st"> </span><span class="kw">GetFitRankLS</span>(y2,<span class="dt">t=</span>t,lambdaRange,phiRange)) </a></code></pre></div>
+<pre><code>##    user  system elapsed 
+##    0.47    0.00    0.47</code></pre>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb21-1" data-line-number="1">paraRankLS1[<span class="dv">2</span>,<span class="dv">1</span>]</a></code></pre></div>
+<pre><code>##  Frequency 
+## 0.07192807</code></pre>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb23-1" data-line-number="1">paraRankLS2[<span class="dv">2</span>,<span class="dv">1</span>]</a></code></pre></div>
+<pre><code>## Frequency 
+## 0.1188811</code></pre>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb25-1" data-line-number="1"><span class="co">## Modeling given the estimated frequency</span></a>
+<a class="sourceLine" id="cb25-2" data-line-number="2">fitSHar1 &lt;-<span class="st"> </span><span class="kw">semihregScam</span>(y1, t, <span class="dt">lambda0=</span>paraRankLS1[<span class="dv">2</span>,<span class="dv">1</span>],</a>
+<a class="sourceLine" id="cb25-3" data-line-number="3">                          <span class="dt">family =</span> <span class="kw">gaussian</span>(), <span class="dt">bs =</span> <span class="st">&quot;mpi&quot;</span>) <span class="co">#the Gaussian case</span></a>
+<a class="sourceLine" id="cb25-4" data-line-number="4">fitSHar2 &lt;-<span class="st"> </span><span class="kw">semihregScam</span>(y2, t, <span class="dt">lambda0=</span>paraRankLS2[<span class="dv">2</span>,<span class="dv">1</span>],</a>
+<a class="sourceLine" id="cb25-5" data-line-number="5">                          <span class="dt">family =</span> <span class="kw">gaussian</span>(), <span class="dt">bs =</span> <span class="st">&quot;mpi&quot;</span>) <span class="co">#the Poisson case</span></a>
+<a class="sourceLine" id="cb25-6" data-line-number="6"></a>
+<a class="sourceLine" id="cb25-7" data-line-number="7"><span class="co">## Fitted values at continuous time</span></a>
+<a class="sourceLine" id="cb25-8" data-line-number="8">newt &lt;-<span class="st"> </span><span class="kw">seq</span>(t[<span class="dv">1</span>],t[<span class="kw">length</span>(t)],<span class="fl">0.1</span>)</a>
+<a class="sourceLine" id="cb25-9" data-line-number="9">predSHar1 &lt;-<span class="st"> </span><span class="kw">predict</span>(fitSHar1,newt)[,<span class="dv">2</span>]</a>
+<a class="sourceLine" id="cb25-10" data-line-number="10">predSHar2 &lt;-<span class="st"> </span><span class="kw">predict</span>(fitSHar2,newt)[,<span class="dv">2</span>]</a>
+<a class="sourceLine" id="cb25-11" data-line-number="11"></a>
+<a class="sourceLine" id="cb25-12" data-line-number="12"><span class="co">## P-values of the likelihood ratio test</span></a>
+<a class="sourceLine" id="cb25-13" data-line-number="13">pvalueRank1 &lt;-<span class="st"> </span><span class="kw">mean</span>(distRankLS<span class="op">&gt;=</span>paraRankLS1[<span class="dv">1</span>,<span class="dv">1</span>])</a>
+<a class="sourceLine" id="cb25-14" data-line-number="14">pvalueRank2 &lt;-<span class="st"> </span><span class="kw">mean</span>(distRankLS<span class="op">&gt;=</span>paraRankLS2[<span class="dv">1</span>,<span class="dv">1</span>])</a></code></pre></div>
+<p>The estimated frequencies using the rank-based method are 0.0719281 and 0.1188811 for the gene YCL055W and the gene YMR198W, respectively. The corresponding p-values are 0.028 and 0.028,respectively.</p>
+</div>
+<div id="visualize-the-fitted-model" class="section level2">
+<h2>Visualize the Fitted Model</h2>
+<p>The observed time series are black dots. The fitted harmonic regression is blue plus and the semiparametric harmonic regression is red triangle.</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb26-1" data-line-number="1"><span class="kw">par</span>(<span class="dt">mfrow=</span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">2</span>))</a>
+<a class="sourceLine" id="cb26-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb26-3" data-line-number="3"><span class="co">#YCL055W</span></a>
+<a class="sourceLine" id="cb26-4" data-line-number="4"><span class="kw">plot</span>(t,y1,<span class="dt">type=</span><span class="st">&quot;p&quot;</span>,<span class="dt">pch=</span><span class="dv">19</span>,</a>
+<a class="sourceLine" id="cb26-5" data-line-number="5">     <span class="dt">xlab =</span> <span class="st">&quot;time&quot;</span>, <span class="dt">ylab =</span> <span class="st">&quot;gene expression&quot;</span>,</a>
+<a class="sourceLine" id="cb26-6" data-line-number="6">     <span class="dt">main=</span><span class="st">&quot;YCL055W&quot;</span>)</a>
+<a class="sourceLine" id="cb26-7" data-line-number="7"><span class="kw">points</span>(t,fitHar1<span class="op">$</span>fitted.values,<span class="dt">col=</span><span class="st">&quot;blue&quot;</span>,<span class="dt">pch=</span><span class="dv">3</span>)</a>
+<a class="sourceLine" id="cb26-8" data-line-number="8"><span class="kw">lines</span>(newt,predHar1,<span class="dt">col=</span><span class="st">&quot;blue&quot;</span>)</a>
+<a class="sourceLine" id="cb26-9" data-line-number="9"><span class="kw">points</span>(t,fitSHar1<span class="op">$</span>esty,<span class="dt">col=</span><span class="st">&quot;red&quot;</span>,<span class="dt">pch=</span><span class="dv">6</span>)</a>
+<a class="sourceLine" id="cb26-10" data-line-number="10"><span class="kw">lines</span>(newt,predSHar1,<span class="dt">col=</span><span class="st">&quot;red&quot;</span>,<span class="dt">lty=</span><span class="dv">3</span>)</a>
+<a class="sourceLine" id="cb26-11" data-line-number="11"></a>
+<a class="sourceLine" id="cb26-12" data-line-number="12"><span class="co">#YMR198W</span></a>
+<a class="sourceLine" id="cb26-13" data-line-number="13"><span class="kw">plot</span>(t,y1,<span class="dt">type=</span><span class="st">&quot;p&quot;</span>,<span class="dt">pch=</span><span class="dv">19</span>,</a>
+<a class="sourceLine" id="cb26-14" data-line-number="14">     <span class="dt">xlab =</span> <span class="st">&quot;time&quot;</span>, <span class="dt">ylab =</span> <span class="st">&quot;gene expression&quot;</span>,</a>
+<a class="sourceLine" id="cb26-15" data-line-number="15">     <span class="dt">main=</span><span class="st">&quot;YMR198W&quot;</span>)</a>
+<a class="sourceLine" id="cb26-16" data-line-number="16"><span class="kw">points</span>(t,fitHar2<span class="op">$</span>fitted.values,<span class="dt">col=</span><span class="st">&quot;blue&quot;</span>,<span class="dt">pch=</span><span class="dv">3</span>)</a>
+<a class="sourceLine" id="cb26-17" data-line-number="17"><span class="kw">lines</span>(newt,predHar2,<span class="dt">col=</span><span class="st">&quot;blue&quot;</span>)</a>
+<a class="sourceLine" id="cb26-18" data-line-number="18"><span class="kw">points</span>(t,fitSHar2<span class="op">$</span>esty,<span class="dt">col=</span><span class="st">&quot;red&quot;</span>,<span class="dt">pch=</span><span class="dv">6</span>)</a>
+<a class="sourceLine" id="cb26-19" data-line-number="19"><span class="kw">lines</span>(newt,predSHar2,<span class="dt">col=</span><span class="st">&quot;red&quot;</span>,<span class="dt">lty=</span><span class="dv">3</span>)</a>
+<a class="sourceLine" id="cb26-20" data-line-number="20"></a>
+<a class="sourceLine" id="cb26-21" data-line-number="21"><span class="kw">par</span>(<span class="dt">mfrow=</span><span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">1</span>))</a></code></pre></div>
+<div class="figure">
+<img src="data:image/png;base64,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" alt="The observed and fitted gene expressions" />
+<p class="caption">The observed and fitted gene expressions</p>
+</div>
+</div>
+
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
